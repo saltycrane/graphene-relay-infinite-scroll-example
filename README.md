@@ -1,6 +1,6 @@
-# Graphene Relay Basic Pagination Example
+# Graphene Relay Infinite Scroll Example
 
-A basic example GraphQL pagination API for [Relay](https://relay.dev/) using [Graphene](https://graphene-python.org/) and [Django](https://www.djangoproject.com/) which works well with infinite scroll UIs.
+A basic GraphQL infinite scroll example using a [React](https://reactjs.org/) + [Relay](https://relay.dev/) client and a [Django](https://www.djangoproject.com/) + [Graphene](https://graphene-python.org/) server.
 
 ### Discretely paged Graphene Relay example
 
@@ -65,13 +65,11 @@ $ ./manage.py graphql_schema --schema pagination_ex_api.schema.schema --out ../s
 
 ## React Relay Next.js web app
 
-The frontend UI uses TypeScript, React, Relay, [relay-hooks](https://github.com/relay-tools/relay-hooks), [Next.js](https://nextjs.org/), and [reactstrap](https://reactstrap.github.io/). It takes advantage of [Relay fragments](https://relay.dev/docs/en/thinking-in-relay) and [Next.js routing](https://nextjs.org/docs/routing/introduction#linking-between-pages) to store pagination state.
-
-Server-side rendering (SSR) [is disabled](/react-relay-webapp/src/pages/index.tsx) because it's difficult to set up and isn't important for this example.
+The frontend UI uses TypeScript, React, Relay, [Next.js](https://nextjs.org/), and [reactstrap](https://reactstrap.github.io/). It uses the [`IntersectionObserver`](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) web API and [`usePaginationFragment`](https://relay.dev/docs/api-reference/use-pagination-fragment/) Relay API.
 
 ### Usage
 
-- Install Node.js 14
+- Install Node.js 16
 - Install packages and run dev server
   ``` sh
   $ cd react-relay-webapp
@@ -85,5 +83,5 @@ Server-side rendering (SSR) [is disabled](/react-relay-webapp/src/pages/index.ts
 ## Interesting code in this repo
 
 - [/graphene-api/fishes/schema.py](/graphene-api/fishes/schema.py)
-- [/react-relay-webapp/src/FishesPage.tsx](/react-relay-webapp/src/FishesPage.tsx)
-- [/react-relay-webapp/src/FishesPagination.tsx](/react-relay-webapp/src/FishesPagination.tsx)
+- [/react-relay-webapp/src/FishesTableBody.tsx](/react-relay-webapp/src/FishesTableBody.tsx)
+- [/react-relay-webapp/src/useInfiniteScroll.tsx](/react-relay-webapp/src/useInfiniteScroll.tsx)

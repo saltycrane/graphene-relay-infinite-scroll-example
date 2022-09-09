@@ -1,13 +1,24 @@
-import { graphql, useLazyLoadQuery } from "react-relay";
+import { useCallback, useRef } from "react";
+import { graphql, usePaginationFragment } from "react-relay";
+import { Spinner } from "reactstrap";
 
-import { FishesTableBodyQuery } from "./__generated__/FishesTableBodyQuery.graphql";
-import { connToArray } from "./relay-utils";
+import { FishesTableBody_query$key } from "./__generated__/FishesTableBody_query.graphql";
+import { PAGE_SIZE } from "./constants";
+import { connectionToArray } from "./relay-utils";
+import useInfiniteScroll from "./useInfiniteScroll";
 
-export default function FishesTableBody() {
-  const data = useLazyLoadQuery<FishesTableBodyQuery>(
+type TProps = {
+  queryRef: FishesTableBody_query$key;
+};
+
+export default function FishesTableBody({ queryRef }: TProps) {
+  const { data, hasNext, isLoadingNext, loadNext } = usePaginationFragment(
     graphql`
-      query FishesTableBodyQuery {
-        allFishes {
+      fragment FishesTableBody_query on Query
+      @argumentDefinitions(count: { type: "Int" }, cursor: { type: "String" })
+      @refetchable(queryName: "FishesTableBodyPaginationQuery") {
+        allFishes(after: $cursor, first: $count, orderBy: "name")
+          @connection(key: "FishesTableBody_query_allFishes") {
           edges {
             node {
               description
@@ -20,10 +31,23 @@ export default function FishesTableBody() {
         }
       }
     `,
-    {},
+    queryRef,
   );
 
-  const fishes = connToArray(data.allFishes);
+  const fishes = connectionToArray(data.allFishes);
+
+  const lastRowRef = useRef<HTMLTableRowElement>();
+
+  const handleScrollIntoView = useCallback(() => {
+    if (hasNext) {
+      loadNext(PAGE_SIZE);
+    }
+  }, [hasNext, loadNext]);
+
+  useInfiniteScroll({
+    elementRef: lastRowRef,
+    onScrollIntoView: handleScrollIntoView,
+  });
 
   return (
     <tbody>
@@ -40,6 +64,13 @@ export default function FishesTableBody() {
           </tr>
         );
       })}
+      <tr ref={lastRowRef}>
+        {isLoadingNext && (
+          <td className="border-0 text-center text-muted" colSpan={99}>
+            <Spinner size="sm" /> Loading...
+          </td>
+        )}
+      </tr>
     </tbody>
   );
 }
